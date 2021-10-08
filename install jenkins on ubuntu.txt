@@ -1,0 +1,35 @@
+How To Install Jenkins on Ubuntu 18.04
+
+
+Installing the Default JRE/JDK
+
+sudo apt install default-jre
+sudo apt install default-jdk
+
+
+Then Jenkins:
+
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+
+sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+
+sudo apt update
+
+sudo apt install jenkins
+
+sudo systemctl start jenkins
+
+sudo systemctl status jenkins
+
+
+Opening the Firewall
+
+sudo ufw allow 8080
+ 
+sudo ufw status
+ 
+
+Note: If the firewall is inactive, the following commands will allow OpenSSH and enable the firewall:
+
+sudo ufw allow OpenSSH
+sudo ufw enable

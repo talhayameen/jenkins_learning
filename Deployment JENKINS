@@ -1,0 +1,132 @@
+
+=================================================Double Cond======================================================
+
+
+#!/bin/bash
+cd /var/www/html/lms_dev/
+
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+
+if [[ "$BRANCH" != "staging" ]]; 
+
+then
+  sudo git pull origin staging
+  cd ..
+
+  FILE=/var/www/html/lms_dev/.env
+  FILE_2=/var/www/html/lms_dev/.env.example
+
+  if [ ! -f "$FILE"  ] || [ ! -f "$FILE_2"]; 
+  then
+    echo "$FILE OR $FILE_2  is Present here we have to delete it"
+    echo "I am removing env"
+    cd /var/www/html/lms_dev/
+    sudo rm .env
+    sudo rm .env.example
+    sudo cp /var/www/html/.env.old lms_dev
+    cd /var/www/html/lms_dev/ 
+    sudo mv .env.old .env
+    php artisan optimize:clear
+  else 
+    echo "$FILE or $FILE_2 do not exist"
+    sudo cp /var/www/html/.env.old lms_dev
+    cd /var/www/html/lms_dev/ 
+    sudo mv .env.old .env
+    php artisan optimize:clear
+  fi
+else
+
+  echo "Branch is changed, So Aborting Git Pull"
+
+fi
+
+-===============================================Single Cond================================================================
+
+#!/bin/bash
+cd /var/www/html/eae_live
+sudo git pull origin production
+cd ..
+FILE=/var/www/html/eae_dev/.env
+if [ ! -f "$FILE"  ]; then 
+  sudo cp .env.live eae_live
+  cd eae_live
+  mv .env.live .env
+fi
+sudo chown -R www-data:www-data /var/www/html/eae_live
+cd /var/www/html/eae_live
+sudo php artisan optimize:clear
+
+
+=============================================branch checking git=======================================================
+
+#!/bin/bash
+cd /var/www/html/eae_staging
+if [ ! $(whoami)=”root” ]; then
+    echo "You are not on sudo mode"
+    exec sudo su - root
+fi
+CURRENT_BRANCH="$(git branch)"
+  if [[ "$CURRENT_BRANCH" -ne "staging" ]]; then
+        echo "Aborting script because you are not on the master branch."
+        return;      # I need to abort here!
+  else
+        sudo git config --global http.sslverify "false"
+        sudo git pull origin staging
+        cd ..
+        FILE=/var/www/html/eae_staging/.env
+        if [ ! -f "$FILE"  ]; then 
+        sudo cp .env.staging eae_staging
+        cd eae_staging
+        sudo mv .env.staging .env
+  fi
+        sudo chown -R www-data:www-data /var/www/html/eae_staging
+        cd /var/www/html/eae_staging
+        sudo php artisan optimize:clear 
+  fi
+
+=========================================Check branch and checkout=================================================
+
+#!/bin/bash
+cd /var/www/html/eae_dev
+sudo git stash
+BRANCH=$(git branch | sed -nr 's/\*\s(.*)/\1/p')
+
+if [ $BRANCH != "dev" ]; then
+
+    echo "You are not in dev branch "
+    echo "Checking out to branch dev"
+    sudo git stash 
+    sudo git checkout dev
+
+else
+
+    echo "You are on $BRANCH so, we can pull "
+    sudo git pull origin dev
+
+fi
+sudo chown -R www-data:www-data /var/www/html/eae_dev
+sudo find /var/www/html/eae_dev -type f -exec chmod 644 {} \;    
+sudo find /var/www/html/eae_dev -type d -exec chmod 755 {} \;
+cd /var/www/html/eae_dev
+sudo php artisan optimize:clear
+
+
+=============================================-======================================================================
+
+
+sudo cp .env.live html
+cd html
+sudo mv .env.live .env
+
+================================================switch user==========================================================
+user="$(whoami)"
+
+if [ "$user" != "root" ]; then
+  echo "you are not on root user"
+  exec su -c $0 root
+else
+  echo "already on root"
+fi
+new_user=$(whoami)
+echo "You are on $new_user now"
+=====================================================================================================================

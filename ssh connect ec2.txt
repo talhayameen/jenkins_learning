@@ -1,0 +1,1 @@
+ssh -i lit_ec2.pem -p 9022 ubuntu@34.210.47.12

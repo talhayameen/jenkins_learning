@@ -1,0 +1,73 @@
+                     Free SSL Certificate On ubuntu + Apache
+
+
+
+=================================Initiate===========================================
+
+Be sure that you have a virtual host file for your domain. 
+
+This tutorial will use /etc/apache2/sites-available/your_domain.conf as an example.
+
+====================================================================================
+
+Step 1 — Installing Certbot
+sudo add-apt-repository ppa:certbot/certbot
+sudo apt install python-certbot-apache
+
+====================================================================================
+
+Step 2 — Set Up the SSL Certificate
+sudo nano /etc/apache2/sites-available/your_domain.conf
+sudo apache2ctl configtest
+sudo systemctl reload apache2
+
+====================================================================================
+
+sudo ufw status
+sudo ufw allow 'Apache Full'
+sudo ufw delete allow 'Apache'
+sudo ufw status
+
+====================================================================================
+
+
+Step 3 _ Install Now
+sudo certbot --apache -d your_domain
+
+
+====================================================================================
+
+
+
+Please choose whether or not to redirect HTTP traffic to HTTPS, removing HTTP access.
+-------------------------------------------------------------------------------
+1: No redirect - Make no further changes to the webserver configuration.
+2: Redirect - Make all requests redirect to secure HTTPS access. Choose this for
+new sites, or if you're confident your site works on HTTPS. You can undo this
+change by editing your web server's configuration.
+-------------------------------------------------------------------------------
+Select the appropriate number [1-2] then [enter] (press 'c' to cancel):
+
+
+
+Step 5 — Verifying Certbot Auto-Renewal
+The certbot package we installed takes care of renewals by including a renew script to /etc/cron.d, which is managed by a systemctl service called certbot.timer. This script runs twice a day and will automatically renew any certificate that’s within thirty days of expiration.
+
+To check the status of this service and make sure it’s active and running, you can use:
+
+sudo systemctl status certbot.timer
+ 
+You’ll get output similar to this:
+
+Output
+● certbot.timer - Run certbot twice daily
+     Loaded: loaded (/lib/systemd/system/certbot.timer; enabled; vendor preset: enabled)
+     Active: active (waiting) since Tue 2020-04-28 17:57:48 UTC; 17h ago
+    Trigger: Wed 2020-04-29 23:50:31 UTC; 12h left
+   Triggers: ● certbot.service
+
+Apr 28 17:57:48 fine-turtle systemd[1]: Started Run certbot twice daily.
+To test the renewal process, you can do a dry run with certbot:
+
+sudo certbot renew --dry-run
+ 

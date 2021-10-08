@@ -1,0 +1,21 @@
+pipeline {
+    agent {
+        node {
+        label 'G_Machine_Slave'
+     }
+    }
+    stages {
+        stage('deploy-staging') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                sh 'ls -l'
+                dir ('talllhaaa'){
+                    writeFile file:'dummy', text:'Hello Talha'
+                }
+                sh 'ls -l'
+            }
+        }
+    }
+}
